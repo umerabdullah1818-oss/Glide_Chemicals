@@ -1,0 +1,55 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="main" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F766E"/>
+      <stop offset="50%" stop-color="#0D9488"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="hi" x1="40" y1="20" x2="80" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5EEAD4" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#06B6D4" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="drop" x1="50" y1="30" x2="70" y2="95" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#99F6E4"/>
+      <stop offset="40%" stop-color="#5EEAD4"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <clipPath id="fc">
+      <path d="M52 52 L34 82 Q32 86 36 90 L84 90 Q88 86 86 82 L68 52 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- Hexagonal Shield -->
+  <path d="M60 6 L108 30 L108 78 Q108 96 90 108 L60 114 L30 108 Q12 96 12 78 L12 30 Z" fill="url(#main)"/>
+  <path d="M60 6 L108 30 L108 78 Q108 96 90 108 L60 114 L30 108 Q12 96 12 78 L12 30 Z" fill="url(#hi)"/>
+
+  <!-- Flask -->
+  <path d="M52 28 L52 52 L34 82 Q32 86 36 90 L84 90 Q88 86 86 82 L68 52 L68 28" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95"/>
+  <line x1="48" y1="28" x2="72" y2="28" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.95"/>
+
+  <!-- Liquid -->
+  <g clip-path="url(#fc)">
+    <rect x="30" y="66" width="60" height="30" fill="white" opacity="0.2"/>
+    <path d="M28 70 Q40 64 50 70 Q60 76 72 70 Q82 64 92 70 L92 95 L28 95 Z" fill="white" opacity="0.3"/>
+    <path d="M28 74 Q38 79 50 74 Q62 69 72 74 Q84 79 92 74 L92 95 L28 95 Z" fill="white" opacity="0.18"/>
+  </g>
+
+  <!-- Bubbles -->
+  <circle cx="48" cy="80" r="2.2" fill="white" opacity="0.5"/>
+  <circle cx="62" cy="76" r="1.6" fill="white" opacity="0.4"/>
+  <circle cx="72" cy="82" r="1.8" fill="white" opacity="0.35"/>
+  <circle cx="55" cy="84" r="1.2" fill="white" opacity="0.45"/>
+
+  <!-- Molecule accents -->
+  <circle cx="88" cy="22" r="3.5" fill="white" opacity="0.45"/>
+  <circle cx="100" cy="36" r="2.5" fill="white" opacity="0.3"/>
+  <circle cx="78" cy="16" r="2" fill="white" opacity="0.28"/>
+  <line x1="88" y1="22" x2="100" y2="36" stroke="white" stroke-width="1.2" opacity="0.25"/>
+  <line x1="78" y1="16" x2="88" y2="22" stroke="white" stroke-width="1.2" opacity="0.22"/>
+
+  <!-- Hex accent -->
+  <path d="M22 88 L28 84 L34 88 L34 94 L28 98 L22 94 Z" stroke="white" stroke-width="1" fill="white" fill-opacity="0.08" opacity="0.5"/>
+
+  <!-- Droplet -->
+  <path d="M60 38 Q56 44 56 48 Q56 52 60 54 Q64 52 64 48 Q64 44 60 38 Z" fill="url(#drop)" opacity="0.85"/>
+</svg>
