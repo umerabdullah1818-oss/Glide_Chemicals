@@ -1,5 +1,5 @@
 // src/components/Footer.jsx
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   Mail, 
@@ -14,23 +14,10 @@ import {
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const CONTACT_EMAIL = 'sales@glidechemicals.com';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const [systemEmail, setSystemEmail] = useState("sales@glidechemicals.com");
-
-  useEffect(() => {
-    // Fetch contact email securely from backend
-    fetch(`${BACKEND_URL}/api/health`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.contactEmail) {
-          setSystemEmail(data.contactEmail);
-        }
-      })
-      .catch(err => console.error('Could not fetch config:', err));
-  }, []);
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -112,8 +99,8 @@ const Footer = () => {
               </li>
               <li className="flex items-center">
                 <Mail className="w-4 h-4 mr-2.5 text-cyan-400 flex-shrink-0" />
-                <a href={`mailto:${systemEmail}`} className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">
-                  {systemEmail}
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">
+                  {CONTACT_EMAIL}
                 </a>
               </li>
               <li className="flex items-center">

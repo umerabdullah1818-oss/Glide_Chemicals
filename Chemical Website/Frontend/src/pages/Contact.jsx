@@ -1,5 +1,5 @@
 // src/pages/Contact.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -16,14 +16,12 @@ import {
   AlertCircle,
   Sparkles,
   Zap,
-  ArrowRight,
-  Upload,
-  X,
-  FileText,
-  Image
+  ArrowRight
 } from 'lucide-react';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const CONTACT_EMAIL = 'sales@glidechemicals.com';
+// Web3Forms access key – get yours free at https://web3forms.com
+const WEB3FORMS_KEY = '6087ecc3-ed14-441e-ab7c-99c851872e24';
 
 const Contact = () => {
   const [searchParams] = useSearchParams();
@@ -37,24 +35,7 @@ const Contact = () => {
     inquiryType: 'technical'
   });
 
-  const [attachments, setAttachments] = useState([]);
-  const fileInputRef = useRef(null);
-  const dropZoneRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const [systemEmail, setSystemEmail] = useState("sales@glidechemicals.com");
-
   useEffect(() => {
-    // Fetch contact email securely from backend
-    fetch(`${BACKEND_URL}/api/health`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.contactEmail) {
-          setSystemEmail(data.contactEmail);
-        }
-      })
-      .catch(err => console.error('Could not fetch config:', err));
-
     const subject = searchParams.get('subject');
     if (subject) {
       setFormData(prev => ({ ...prev, subject }));
@@ -65,106 +46,7 @@ const Contact = () => {
   const [submitStatus, setSubmitStatus] = useState(null);
   const [submitMessage, setSubmitMessage] = useState('');
 
-  // ─── File handling ───
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-  const ALLOWED_TYPES = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'image/jpeg',
-    'image/jpg',
-    'image/png'
-  ];
-
-  const validateFile = (file) => {
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return 'Invalid file type. Only PDF, DOC, DOCX, JPG, and PNG are allowed.';
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      return `File "${file.name}" exceeds 10MB limit.`;
-    }
-    return null;
-  };
-
-  const addFiles = (files) => {
-    const newFiles = [];
-    const errors = [];
-
-    Array.from(files).forEach(file => {
-      const error = validateFile(file);
-      if (error) {
-        errors.push(error);
-      } else if (attachments.length + newFiles.length < 5) {
-        // Check for duplicates
-        const isDuplicate = attachments.some(a => a.name === file.name && a.size === file.size);
-        if (!isDuplicate) {
-          newFiles.push(file);
-        }
-      } else {
-        errors.push('Maximum 5 files allowed.');
-      }
-    });
-
-    if (errors.length > 0) {
-      setSubmitStatus('error');
-      setSubmitMessage(errors[0]);
-      setTimeout(() => setSubmitStatus(null), 4000);
-    }
-
-    if (newFiles.length > 0) {
-      setAttachments(prev => [...prev, ...newFiles]);
-    }
-  };
-
-  const removeFile = (index) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const handleFileClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e) => {
-    if (e.target.files?.length > 0) {
-      addFiles(e.target.files);
-      e.target.value = ''; // Reset so same file can be re-selected
-    }
-  };
-
-  // Drag and drop handlers
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    if (e.dataTransfer.files?.length > 0) {
-      addFiles(e.dataTransfer.files);
-    }
-  };
-
-  const formatFileSize = (bytes) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  };
-
-  const getFileIcon = (file) => {
-    if (file.type.startsWith('image/')) return <Image className="w-4 h-4" />;
-    return <FileText className="w-4 h-4" />;
-  };
-
-  // ─── Form submission ───
+  // ─── Form submission via Web3Forms ───
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -172,29 +54,27 @@ const Contact = () => {
 
     try {
       const formPayload = new FormData();
+      formPayload.append('access_key', WEB3FORMS_KEY);
+      formPayload.append('subject', `[${formData.inquiryType.toUpperCase()}] ${formData.subject}`);
+      formPayload.append('from_name', formData.name);
       formPayload.append('name', formData.name);
       formPayload.append('email', formData.email);
-      formPayload.append('company', formData.company);
-      formPayload.append('phone', formData.phone);
-      formPayload.append('subject', formData.subject);
+      formPayload.append('company', formData.company || 'N/A');
+      formPayload.append('phone', formData.phone || 'N/A');
+      formPayload.append('inquiry_type', formData.inquiryType);
       formPayload.append('message', formData.message);
-      formPayload.append('inquiryType', formData.inquiryType);
 
-      // Append attachments
-      attachments.forEach(file => {
-        formPayload.append('attachments', file);
-      });
-
-      const response = await fetch(`${BACKEND_URL}/api/contact`, {
+      const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         body: formPayload,
       });
 
       const result = await response.json();
+      console.log('Web3Forms response:', result);
 
-      if (response.ok && result.success) {
+      if (result.success) {
         setSubmitStatus('success');
-        setSubmitMessage(result.message || 'Your message has been sent successfully!');
+        setSubmitMessage('Your message has been sent successfully! We will get back to you shortly.');
         setFormData({
           name: '',
           email: '',
@@ -204,7 +84,6 @@ const Contact = () => {
           message: '',
           inquiryType: 'technical'
         });
-        setAttachments([]);
       } else {
         setSubmitStatus('error');
         setSubmitMessage(result.message || 'Something went wrong. Please try again.');
@@ -212,10 +91,9 @@ const Contact = () => {
     } catch (error) {
       console.error('Contact form error:', error);
       setSubmitStatus('error');
-      setSubmitMessage(`Could not connect to the server. Please try again later or contact us directly at ${systemEmail}`);
+      setSubmitMessage(`Could not send message. Please try again later or email us directly at ${CONTACT_EMAIL}`);
     } finally {
       setIsSubmitting(false);
-      // Clear status after 8 seconds
       setTimeout(() => setSubmitStatus(null), 8000);
     }
   };
@@ -231,7 +109,7 @@ const Contact = () => {
     {
       icon: <Mail className="w-5 h-5" />,
       title: "Email",
-      details: [systemEmail],
+      details: [CONTACT_EMAIL],
       color: "from-teal-500 to-cyan-500"
     },
     {
@@ -309,7 +187,7 @@ const Contact = () => {
               className="flex flex-wrap justify-center gap-3 sm:gap-4"
             >
               {[
-                { icon: <Mail className="w-4 h-4" />, text: systemEmail },
+                { icon: <Mail className="w-4 h-4" />, text: CONTACT_EMAIL },
                 { icon: <Phone className="w-4 h-4" />, text: "+1 438-921-3346" },
                 { icon: <Zap className="w-4 h-4" />, text: "24hr Response" },
               ].map((item, i) => (
@@ -509,19 +387,19 @@ const Contact = () => {
                               whileHover={{ y: -2 }}
                               whileTap={{ scale: 0.97 }}
                               className={`flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl border-2 transition-all ${formData.inquiryType === type.id
-                                  ? 'border-cyan-500 bg-teal-50 dark:bg-cyan-500/10 shadow-md shadow-teal-500/10'
-                                  : 'border-gray-200 dark:border-gray-700 hover:border-teal-300 dark:hover:border-cyan-500/30'
+                                ? 'border-cyan-500 bg-teal-50 dark:bg-cyan-500/10 shadow-md shadow-teal-500/10'
+                                : 'border-gray-200 dark:border-gray-700 hover:border-teal-300 dark:hover:border-cyan-500/30'
                                 }`}
                             >
                               <div className={`mb-1.5 ${formData.inquiryType === type.id
-                                  ? 'text-teal-600 dark:text-cyan-400'
-                                  : 'text-gray-400 dark:text-gray-500'
+                                ? 'text-teal-600 dark:text-cyan-400'
+                                : 'text-gray-400 dark:text-gray-500'
                                 }`}>
                                 {React.cloneElement(type.icon, { className: 'w-5 h-5' })}
                               </div>
                               <span className={`text-xs font-medium ${formData.inquiryType === type.id
-                                  ? 'text-teal-600 dark:text-cyan-400'
-                                  : 'text-gray-600 dark:text-gray-400'
+                                ? 'text-teal-600 dark:text-cyan-400'
+                                : 'text-gray-600 dark:text-gray-400'
                                 }`}>
                                 {type.label}
                               </span>
@@ -557,7 +435,7 @@ const Contact = () => {
                             onChange={handleChange}
                             required
                             className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-cyan-400 transition-all text-sm"
-                            placeholder="john@company.com"
+                            placeholder="abc@company.com"
                           />
                         </div>
                       </div>
@@ -624,89 +502,6 @@ const Contact = () => {
                         />
                       </div>
 
-                      {/* Attachments — Fully Functional */}
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                          Attachments <span className="text-gray-400 font-normal">(Optional — Max 5 files, 10MB each)</span>
-                        </label>
-
-                        {/* Hidden file input */}
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          multiple
-                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                          onChange={handleFileChange}
-                          className="hidden"
-                        />
-
-                        {/* Drop zone */}
-                        <div
-                          ref={dropZoneRef}
-                          onClick={handleFileClick}
-                          onDragOver={handleDragOver}
-                          onDragLeave={handleDragLeave}
-                          onDrop={handleDrop}
-                          className={`border-2 border-dashed rounded-xl p-5 sm:p-6 text-center transition-all cursor-pointer group ${isDragging
-                              ? 'border-cyan-400 bg-cyan-50 dark:bg-cyan-500/10 dark:border-cyan-500/50 scale-[1.02]'
-                              : 'border-gray-200 dark:border-gray-700 hover:border-cyan-400 dark:hover:border-cyan-500/30'
-                            }`}
-                        >
-                          <div className={`inline-flex p-2.5 rounded-xl bg-teal-50 dark:bg-cyan-500/10 text-cyan-500 dark:text-cyan-400 group-hover:scale-110 transition-transform mb-2 ${isDragging ? 'scale-110' : ''}`}>
-                            <Upload className="w-5 h-5" />
-                          </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {isDragging ? 'Drop files here...' : 'Drop files here or click to upload'}
-                          </div>
-                          <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                            PDF, DOC, JPG, PNG — Max 10MB per file
-                          </div>
-                        </div>
-
-                        {/* Selected files list */}
-                        {attachments.length > 0 && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            className="mt-3 space-y-2"
-                          >
-                            {attachments.map((file, index) => (
-                              <motion.div
-                                key={`${file.name}-${index}`}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 10 }}
-                                transition={{ delay: index * 0.05 }}
-                                className="flex items-center justify-between px-4 py-2.5 bg-gray-50 dark:bg-gray-700/30 border border-gray-100 dark:border-gray-700 rounded-xl group/file"
-                              >
-                                <div className="flex items-center gap-3 min-w-0">
-                                  <div className="p-1.5 rounded-lg bg-teal-50 dark:bg-cyan-500/10 text-teal-600 dark:text-cyan-400 flex-shrink-0">
-                                    {getFileIcon(file)}
-                                  </div>
-                                  <div className="min-w-0">
-                                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
-                                      {file.name}
-                                    </p>
-                                    <p className="text-xs text-gray-400">
-                                      {formatFileSize(file.size)}
-                                    </p>
-                                  </div>
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={(e) => { e.stopPropagation(); removeFile(index); }}
-                                  className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex-shrink-0"
-                                >
-                                  <X className="w-4 h-4" />
-                                </button>
-                              </motion.div>
-                            ))}
-                            <p className="text-xs text-gray-400 text-right">
-                              {attachments.length}/5 files selected
-                            </p>
-                          </motion.div>
-                        )}
-                      </div>
 
                       {/* Submit */}
                       <motion.button
@@ -715,8 +510,8 @@ const Contact = () => {
                         whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
                         whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
                         className={`w-full py-3.5 sm:py-4 px-6 rounded-xl font-semibold text-white transition-all ${isSubmitting
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-teal-600 via-cyan-600 to-cyan-600 hover:shadow-xl hover:shadow-teal-500/20'
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-teal-600 via-cyan-600 to-cyan-600 hover:shadow-xl hover:shadow-teal-500/20'
                           }`}
                       >
                         {isSubmitting ? (
