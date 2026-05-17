@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 import {
   Beaker,
   FlaskRound as Flask,
@@ -113,6 +114,10 @@ const Services = () => {
 
   return (
     <div className="relative overflow-hidden -mt-16">
+      <SEO 
+        title="Our Services | Glide Chemicals"
+        description="Discover our specialized services including custom blending, warehousing, logistics, and technical support for your chemical needs."
+      />
       {/* Hero Section with Video */}
       <section className="relative min-h-screen flex items-center justify-center">
         <div className="absolute inset-0 overflow-hidden">

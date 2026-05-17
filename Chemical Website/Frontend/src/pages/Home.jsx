@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 
 // Animated counter component
 const CountUp = ({ end, suffix = '', duration = 2 }) => {
@@ -64,6 +65,10 @@ const Home = () => {
 
   return (
     <div className="relative overflow-hidden -mt-16">
+      <SEO 
+        title="Glide Chemicals | Trusted Wholesale Chemical Distributor"
+        description="Glide Chemicals Inc. is your premier wholesale chemical distributor. We offer bulk supply, competitive pricing, and fast delivery across North America."
+      />
       {/* Hero Section with Video Background */}
       <section className="relative min-h-screen flex items-center justify-center">
         {/* Video Background */}

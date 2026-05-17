@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
+import SEO from '../components/SEO';
 import {
   Mail,
   Phone,
@@ -141,6 +142,10 @@ const Contact = () => {
 
   return (
     <div className="relative overflow-hidden -mt-16">
+      <SEO 
+        title="Contact Us | Glide Chemicals"
+        description="Get in touch with the Glide Chemicals team for quotes, product inquiries, or customer support."
+      />
       {/* Hero Section with Video */}
       <section className="relative min-h-screen flex items-center justify-center">
         <div className="absolute inset-0 overflow-hidden">
