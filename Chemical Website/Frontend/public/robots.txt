@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.glidechemicals.com/sitemap.xml
+Sitemap: https://glidechemicals.com/sitemap.xml
