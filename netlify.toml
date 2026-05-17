@@ -2,3 +2,4 @@
   base = "Chemical Website/Frontend"
   publish = "dist"
   command = "npm run build"
+  ignore = "false"
